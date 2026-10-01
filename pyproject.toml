@@ -1,7 +1,7 @@
 [project]
 name = "gittoolbox"
-version = "1.0.0"
-description = "Keep a folder full of git repositories tidy: refresh them, count and clean branches, audit READMEs."
+version = "1.1.0"
+description = "Keep a folder full of git repositories tidy: refresh them, count and clean branches, audit READMEs, scan for personal data and secrets."
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]

@@ -13,6 +13,7 @@ from gittoolbox.errors import ToolboxError
 from gittoolbox.readme import DEFAULT_SECTIONS, audit_readme
 from gittoolbox.refresh import refresh_repo
 from gittoolbox.repos import discover, is_repo, load_list
+from gittoolbox.scan import scan_repo
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -36,6 +37,9 @@ def build_parser() -> argparse.ArgumentParser:
     readme.add_argument("--min-lines", type=int, default=10, help="minimum number of lines (default: 10)")
     readme.add_argument("--section", action="append", metavar="NAME",
                         help=f"required heading, repeatable (default: {', '.join(DEFAULT_SECTIONS)})")
+
+    scan = commands.add_parser("scan", help="find personal data and secrets (masked output, exit 1 if any)")
+    scan.add_argument("--history", action="store_true", help="also scan every line ever committed")
     return parser
 
 
@@ -103,7 +107,26 @@ def _readme(repos, args, ctx):
     return 1 if issues else 0
 
 
-COMMANDS = {"refresh": _refresh, "branches": _branches, "cleanup": _cleanup, "readme": _readme}
+def _scan(repos, args, ctx):
+    status = 0
+    for r in repos:
+        try:
+            findings = scan_repo(r, history=args.history, runner=ctx["runner"])
+        except RuntimeError as e:
+            ctx["line"](r, "failed", str(e))
+            status = 1
+            continue
+        if not findings:
+            ctx["line"](r, "clean")
+            continue
+        status = 1
+        ctx["line"](r, f"{len(findings)} finding{'s' if len(findings) > 1 else ''}")
+        for f in findings:
+            ctx["say"](f"    {f.where}  {f.kind}  {f.masked}")
+    return status
+
+
+COMMANDS = {"refresh": _refresh, "branches": _branches, "cleanup": _cleanup, "readme": _readme, "scan": _scan}
 
 
 def main(argv=None, runner=subprocess.run, now=None, out=None) -> int:

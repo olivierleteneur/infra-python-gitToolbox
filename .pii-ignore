@@ -1,0 +1,2 @@
+# Fictional personal data and fake secrets used to test the scan command
+tests/test_scan.py
