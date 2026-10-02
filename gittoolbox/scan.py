@@ -124,13 +124,13 @@ DETECTORS = [
         r"(?i)\b(?:password|passwd|pwd|secret|client[_-]?secret|token|access[_-]?token|auth[_-]?token|api[_-]?key)\b"
         r"[\"']?\s*[:=]\s*[\"']([^\"'\s]{8,})[\"']"), 1, lambda v: not _is_placeholder(v)),
     ("iban", re.compile(r"\b[A-Z]{2}\d{2}(?: ?[A-Z0-9]{4}){2,7}(?: ?[A-Z0-9]{1,4})?\b"), 0, _valid_iban),
-    ("nir", re.compile(r"(?<!\d)(?<!\d )[12] ?\d{2} ?(?:0[1-9]|1[0-2]|[2-9]\d) ?(?:\d{2}|2[AB]) ?\d{3} ?\d{3} ?\d{2}(?! ?\d)"),
+    ("nir", re.compile(r"(?<!\w)(?<!\d )[12] ?\d{2} ?(?:0[1-9]|1[0-2]|[2-9]\d) ?(?:\d{2}|2[AB]) ?\d{3} ?\d{3} ?\d{2}(?! ?\d)(?!\w)"),
      0, _valid_nir),
-    ("rib", re.compile(r"(?<![\dA-Z])\d{5} ?\d{5} ?[0-9A-Z]{11} ?\d{2}(?![\dA-Z])"), 0, _valid_rib),
-    ("siret", re.compile(r"(?<!\d)(?<!\d )\d{3} ?\d{3} ?\d{3} ?\d{5}(?! ?\d)"), 0, lambda v: _valid_luhn_id(v)),
+    ("rib", re.compile(r"(?<!\w)\d{5} ?\d{5} ?[0-9A-Z]{11} ?\d{2}(?!\w)"), 0, _valid_rib),
+    ("siret", re.compile(r"(?<!\w)(?<!\d )\d{3} ?\d{3} ?\d{3} ?\d{5}(?! ?\d)(?!\w)"), 0, lambda v: _valid_luhn_id(v)),
     ("siren", re.compile(r"(?i)\bsiren\b\W{0,4}(\d{3} ?\d{3} ?\d{3})(?! ?\d)"), 1, lambda v: _valid_luhn_id(v)),
-    ("card", re.compile(r"(?<!\d)(?<!\d[ -])(?:\d[ -]?){12,18}\d(?![ -]?\d)"), 0, _valid_card),
-    ("phone-fr", re.compile(r"(?<![\d+])(?<!\d[ .-])(?:\+33[ .-]?|0)[1-9](?:[ .-]?\d{2}){4}(?![ .-]?\d)"), 0, None),
+    ("card", re.compile(r"(?<!\w)(?<!\d[ -])(?:\d[ -]?){12,18}\d(?![ -]?\d)(?!\w)"), 0, _valid_card),
+    ("phone-fr", re.compile(r"(?<![\w+])(?<!\d[ .-])(?:\+33[ .-]?|0)[1-9](?:[ .-]?\d{2}){4}(?![ .-]?\d)(?!\w)"), 0, None),
     ("ssn-us", re.compile(r"\b\d{3}-\d{2}-\d{4}\b"), 0, _valid_ssn),
     ("email", re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}"), 0, _valid_email),
 ]

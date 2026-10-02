@@ -203,3 +203,12 @@ def test_ignores_invalid_french_identifiers(text):
 ])
 def test_ignores_more_placeholder_wordings(text):
     assert kinds(text) == []
+
+
+@pytest.mark.parametrize("text", [
+    "packages/5c/e0/90637574e5e7212c09099c67ad349b04ec4d6020324539297b634a0192b0/tomli.whl",  # hash in a URL
+    "sha256:ab4111111111111111cd",           # digits glued to letters
+    "id_12345678900007x",
+])
+def test_ignores_numbers_embedded_in_hashes_and_identifiers(text):
+    assert kinds(text) == []
