@@ -212,3 +212,13 @@ def test_ignores_more_placeholder_wordings(text):
 ])
 def test_ignores_numbers_embedded_in_hashes_and_identifiers(text):
     assert kinds(text) == []
+
+
+@pytest.mark.parametrize("text", [
+    "ssh pi@printserver.local",
+    'server="${MACHINE_CHECK_SERVER:-pi@printserver.local}"',
+    "admin@nas.lan",
+    "root@router.home.arpa",
+])
+def test_ignores_ssh_targets_on_local_network_names(text):
+    assert kinds(text) == []

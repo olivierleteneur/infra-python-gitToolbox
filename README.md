@@ -49,7 +49,7 @@ blog     clean
 
 | Kind | What is detected | False positives avoided by |
 |---|---|---|
-| `email` | Email addresses | Ignoring `example.*`, `localhost`, `noreply@…` |
+| `email` | Email addresses | Ignoring `example.*`, `localhost`, local network names (`.local`, `.lan`, `.home.arpa`, typical of SSH targets) and `noreply@…` |
 | `phone-fr` | French phone numbers (`06 12 34 56 78`, `+33 6…`) | Separators and boundaries | <!-- pii: ignore -->
 | `nir` | French social security numbers | Checking the 2-digit key |
 | `iban` | IBANs | The mod 97 checksum |

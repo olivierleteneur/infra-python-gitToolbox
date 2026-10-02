@@ -20,7 +20,7 @@ HISTORY_TIMEOUT = 300
 
 PLACEHOLDER_HINTS = ("changeme", "your", "you-", "insert", "replace", "xxx", "example", "dummy", "placeholder",
                      "redacted", "<", ">", "${", "{{", "****")
-IGNORED_EMAIL_DOMAINS = re.compile(r"(^|\.)(example(\.\w+)?|localhost|test|invalid|users\.noreply\.github\.com)$", re.I)
+IGNORED_EMAIL_DOMAINS = re.compile(r"(^|\.)(example(\.\w+)?|localhost|local|lan|home\.arpa|test|invalid|users\.noreply\.github\.com)$", re.I)
 IGNORED_EMAIL_USERS = {"noreply", "no-reply"}
 
 
