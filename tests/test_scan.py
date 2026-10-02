@@ -166,3 +166,39 @@ def test_cli_scan_reports_masked_findings_and_fails(local_repo):
     assert code == 1
     assert "notes.md:1" in out and "email" in out
     assert "jean.dupont@exemple.fr" not in out
+
+
+# --- French bank and company identifiers (fictional values with valid keys) -------------
+
+@pytest.mark.parametrize("text, kind", [
+    ("rib: 30003 01234 00012345678 54", "rib"),
+    ("bank_number=\"30003012340001234567854\"", "rib"),
+    ("RIB 12345 67890 0001234567A 79", "rib"),
+    ("SIRET : 123 456 789 00007", "siret"),
+    ('siret="12345678900007"', "siret"),
+    ("SIREN 123 456 782", "siren"),
+    ("siren: 123456782", "siren"),
+])
+def test_detects_french_bank_and_company_identifiers(text, kind):
+    assert kinds(text) == [kind]
+
+
+@pytest.mark.parametrize("text", [
+    "rib: 30003 01234 00012345678 55",   # wrong RIB key
+    "SIRET : 123 456 789 00008",         # fails Luhn
+    "ref 123456782",                     # 9 Luhn-valid digits without the SIREN keyword
+    "SIREN 123 456 789",                 # fails Luhn
+    'siret="00000000000000"',            # Luhn-valid but a neutral placeholder
+    "SIREN 000 000 000",
+])
+def test_ignores_invalid_french_identifiers(text):
+    assert kinds(text) == []
+
+
+@pytest.mark.parametrize("text", [
+    "apiKey = 'you-API-key'",
+    'token = "insert-token-here"',
+    'password = "replace-me-please"',
+])
+def test_ignores_more_placeholder_wordings(text):
+    assert kinds(text) == []

@@ -53,10 +53,12 @@ blog     clean
 | `phone-fr` | French phone numbers (`06 12 34 56 78`, `+33 6…`) | Separators and boundaries | <!-- pii: ignore -->
 | `nir` | French social security numbers | Checking the 2-digit key |
 | `iban` | IBANs | The mod 97 checksum |
+| `rib` | French bank account numbers (RIB: bank, branch, account, key) | Checking the RIB key |
+| `siret`, `siren` | French company and establishment numbers | Luhn checksum, no single repeated digit; SIREN only right after the word "SIREN" |
 | `card` | Payment card numbers | Luhn checksum, network prefix (3 to 6) |
 | `ssn-us` | US social security numbers | Rejecting impossible ranges |
 | `private-key`, `aws-key`, `github-token` | Well-known key and token formats | Exact formats |
-| `secret-assignment`, `bearer-token`, `basic-auth` | Hard-coded `password = "…"`, `apiKey: "…"`, `Bearer …`, `HTTPBasicAuth(…)` | Skipping placeholders (`changeme`, `${VAR}`, `your-…`) and environment lookups |
+| `secret-assignment`, `bearer-token`, `basic-auth` | Hard-coded `password = "…"`, `apiKey: "…"`, `Bearer …`, `HTTPBasicAuth(…)` | Skipping placeholders (`changeme`, `${VAR}`, `your-…`, `insert…`, `replace…`) and environment lookups |
 
 Add a `.pii-ignore` file (one path pattern per line, `#` for comments) for fictional test data, or put `pii: ignore` on a line to skip it. A secret found in `--history` stays readable in the repository even after its removal: revoke it, then rewrite the history if the repository is to be published. No tool reliably spots a name next to a birth date; keep a human review for that.
 

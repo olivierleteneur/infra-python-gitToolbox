@@ -1,6 +1,6 @@
 """Find personal data and secrets in a repository, before it goes public.
 
-Checksums (IBAN mod 97, French NIR key, Luhn) and placeholder filters keep false
+Checksums (IBAN mod 97, French NIR and RIB keys, Luhn for cards and SIRET/SIREN) and placeholder filters keep false
 positives low; values are always reported masked. Nothing can reliably spot a name
 next to a birth date: that still needs a human review.
 """
@@ -18,8 +18,8 @@ INLINE_IGNORE = "pii: ignore"
 MAX_FILE_BYTES = 2_000_000
 HISTORY_TIMEOUT = 300
 
-PLACEHOLDER_HINTS = ("changeme", "your", "xxx", "example", "dummy", "placeholder", "redacted",
-                     "<", ">", "${", "{{", "****")
+PLACEHOLDER_HINTS = ("changeme", "your", "you-", "insert", "replace", "xxx", "example", "dummy", "placeholder",
+                     "redacted", "<", ">", "${", "{{", "****")
 IGNORED_EMAIL_DOMAINS = re.compile(r"(^|\.)(example(\.\w+)?|localhost|test|invalid|users\.noreply\.github\.com)$", re.I)
 IGNORED_EMAIL_USERS = {"noreply", "no-reply"}
 
@@ -80,6 +80,24 @@ def _valid_nir(value):
     return 97 - int(body) % 97 == key
 
 
+def _valid_luhn_id(value):
+    """SIRET/SIREN: Luhn-valid, and not a placeholder made of a single repeated digit."""
+    digits = _digits(value)
+    return len(set(digits)) > 1 and _luhn(digits)
+
+
+# Letters allowed in French account numbers, as used by the RIB key.
+RIB_LETTERS = {c: str(v) for v, letters in {1: "AJ", 2: "BKS", 3: "CLT", 4: "DMU", 5: "ENV", 6: "FOW", 7: "GPX",
+                                             8: "HQY", 9: "IRZ"}.items() for c in letters}
+
+
+def _valid_rib(value):
+    compact = value.replace(" ", "")
+    bank, branch, account, key = compact[:5], compact[5:10], compact[10:21], int(compact[21:])
+    account = "".join(RIB_LETTERS.get(c, c) for c in account)
+    return 97 - (89 * int(bank) + 15 * int(branch) + 3 * int(account)) % 97 == key
+
+
 def _valid_ssn(value):
     area, group, serial = value.split("-")
     return area not in ("000", "666") and not area.startswith("9") and group != "00" and serial != "0000"
@@ -105,6 +123,9 @@ DETECTORS = [
     ("iban", re.compile(r"\b[A-Z]{2}\d{2}(?: ?[A-Z0-9]{4}){2,7}(?: ?[A-Z0-9]{1,4})?\b"), 0, _valid_iban),
     ("nir", re.compile(r"(?<!\d)(?<!\d )[12] ?\d{2} ?(?:0[1-9]|1[0-2]|[2-9]\d) ?(?:\d{2}|2[AB]) ?\d{3} ?\d{3} ?\d{2}(?! ?\d)"),
      0, _valid_nir),
+    ("rib", re.compile(r"(?<![\dA-Z])\d{5} ?\d{5} ?[0-9A-Z]{11} ?\d{2}(?![\dA-Z])"), 0, _valid_rib),
+    ("siret", re.compile(r"(?<!\d)(?<!\d )\d{3} ?\d{3} ?\d{3} ?\d{5}(?! ?\d)"), 0, lambda v: _valid_luhn_id(v)),
+    ("siren", re.compile(r"(?i)\bsiren\b\W{0,4}(\d{3} ?\d{3} ?\d{3})(?! ?\d)"), 1, lambda v: _valid_luhn_id(v)),
     ("card", re.compile(r"(?<!\d)(?<!\d[ -])(?:\d[ -]?){12,18}\d(?![ -]?\d)"), 0, _valid_card),
     ("phone-fr", re.compile(r"(?<![\d+])(?<!\d[ .-])(?:\+33[ .-]?|0)[1-9](?:[ .-]?\d{2}){4}(?![ .-]?\d)"), 0, None),
     ("ssn-us", re.compile(r"\b\d{3}-\d{2}-\d{4}\b"), 0, _valid_ssn),
