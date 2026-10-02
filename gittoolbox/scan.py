@@ -80,10 +80,13 @@ def _valid_nir(value):
     return 97 - int(body) % 97 == key
 
 
+TIMESTAMP = re.compile(r"(19[7-9]\d|20\d\d)(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])([01]\d|2[0-3])[0-5]\d[0-5]\d")
+
+
 def _valid_luhn_id(value):
-    """SIRET/SIREN: Luhn-valid, and not a placeholder made of a single repeated digit."""
+    """SIRET/SIREN: Luhn-valid, not a single repeated digit, and not a YYYYMMDDhhmmss timestamp."""
     digits = _digits(value)
-    return len(set(digits)) > 1 and _luhn(digits)
+    return len(set(digits)) > 1 and not TIMESTAMP.fullmatch(digits) and _luhn(digits)
 
 
 # Letters allowed in French account numbers, as used by the RIB key.

@@ -190,6 +190,7 @@ def test_detects_french_bank_and_company_identifiers(text, kind):
     "SIREN 123 456 789",                 # fails Luhn
     'siret="00000000000000"',            # Luhn-valid but a neutral placeholder
     "SIREN 000 000 000",
+    "_Log_20241208185203.log",           # Luhn-valid timestamp (YYYYMMDDhhmmss), not a SIRET
 ])
 def test_ignores_invalid_french_identifiers(text):
     assert kinds(text) == []
